@@ -1,1 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rent Receipt – Hiresh Toppo | April 2025</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --ink: #1a1a2e;
+      --accent: #c8472a;
+      --gold: #d4a843;
+      --soft: #f5f0e8;
+      --mid: #e8e0d0;
+      --muted: #7a7060;
+      --white: #fffdf8;
+    }
+
+    body {
+      background: #e8e2d8;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .receipt {
+      background: var(--white);
+      width: 100%;
+      max-width: 680px;
+      border-radius: 2px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top stripe */
+    .receipt::before {
+      content: '';
+      display: block;
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
+    }
+
+    /* Header */
+    .header {
+      background: var(--ink);
+      color: var(--white);
+      padding: 32px 40px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo-mark {
+      width: 52px;
+      height: 52px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--gold);
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .header-info { flex: 1; }
+
+    .org-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--white);
+    }
+
+    .org-address {
+      font-size: 12.5px;
+      color: #a8a090;
+      margin-top: 4px;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    .header-badge {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .receipt-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .month-year {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    /* Meta row */
+    .meta-row {
+      background: var(--soft);
+      border-bottom: 1px solid var(--mid);
+      padding: 14px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .meta-value { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+
+    /* Tenant block */
+    .tenant-block {
+      padding: 24px 40px 20px;
+      border-bottom: 1px solid var(--mid);
+    }
+
+    .section-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .tenant-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .tenant-room {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Table */
+    .bill-table {
+      width: 100%;
+      border-collapse: collapse;
+      padding: 0 40px;
+      display: block;
+    }
+
+    .bill-table-wrap { padding: 0 40px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--ink);
+      color: var(--white);
+    }
+
+    thead th {
+      padding: 10px 16px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    thead th:last-child { text-align: right; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--mid);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: var(--soft); }
+
+    tbody td {
+      padding: 11px 16px;
+      font-size: 13.5px;
+      vertical-align: middle;
+    }
+
+    tbody td:last-child {
+      text-align: right;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .td-note {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .section-divider td {
+      padding: 6px 16px 2px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border-bottom: none;
+      background: var(--soft);
+    }
+
+    /* Totals */
+    .totals-block {
+      padding: 20px 40px 0;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--mid);
+      font-size: 13.5px;
+    }
+
+    .total-row.subtotal { font-weight: 500; }
+    .total-row.previous { color: var(--muted); }
+
+    .balance-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding: 16px 20px;
+      background: var(--ink);
+      border-radius: 2px;
+    }
+
+    .balance-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .balance-amount {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .balance-currency {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: #a8a090;
+      margin-right: 4px;
+    }
+
+    /* Payment */
+    .payment-block {
+      padding: 24px 40px 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 1px solid var(--mid);
+      margin-top: 20px;
+    }
+
+    .payment-col { flex: 1; }
+    .payment-col-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .payment-method {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+
+    .upi-id {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--soft);
+      border-top: 1px solid var(--mid);
+      padding: 16px 40px;
+      text-align: center;
+    }
+
+    .footer-main {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .footer-hindi {
+      font-size: 12.5px;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* Print button */
+    .print-btn {
+      display: block;
+      margin: 24px auto 0;
+      padding: 10px 28px;
+      background: var(--ink);
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .print-btn:hover { background: var(--accent); }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .print-btn { display: none; }
+      .receipt { box-shadow: none; }
+    }
+
+    @media (max-width: 520px) {
+      .header { padding: 24px 20px 20px; flex-wrap: wrap; }
+      .meta-row { padding: 12px 20px; flex-wrap: wrap; gap: 10px; }
+      .tenant-block, .bill-table-wrap, .totals-block, .payment-block, .footer { padding-left: 20px; padding-right: 20px; }
+      .balance-amount { font-size: 22px; }
+      .month-year { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="receipt">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-mark">MR</div>
+    <div class="header-info">
+      <div class="org-name">Minz's Residence</div>
+      <div class="org-address">734, Shivam Vihar Colony<br>Raigarh, Chhattisgarh – 496001</div>
+    </div>
+    <div class="header-badge">
+      <span class="receipt-label">Rent Receipt</span>
+      <div class="month-year">April 2025</div>
+    </div>
+  </div>
+
+  <!-- Meta row -->
+  <div class="meta-row">
+    <div class="meta-item">
+      <span class="meta-label">Receipt No.</span>
+      <span class="meta-value">—</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Bill Date</span>
+      <span class="meta-value">01 April 2025</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Due By</span>
+      <span class="meta-value">06 April 2025</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Status</span>
+      <span class="meta-value" style="color: var(--accent); font-weight: 600;">Unpaid</span>
+    </div>
+  </div>
+
+  <!-- Tenant -->
+  <div class="tenant-block">
+    <div class="section-tag">Billed To</div>
+    <div class="tenant-name">Hiresh Toppo</div>
+    <div class="tenant-room">Block 4, Minz Residence</div>
+  </div>
+
+  <!-- Bill table -->
+  <div class="bill-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left;">Description</th>
+          <th style="text-align:right;">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="section-divider"><td colspan="2">Room Rent</td></tr>
+        <tr>
+          <td>Monthly Room Rent – April 2025</td>
+          <td>6,000.00</td>
+        </tr>
+
+        <tr class="section-divider"><td colspan="2">Electricity</td></tr>
+        <tr>
+          <td>
+            Meter Reading – 1 April 2025
+            <div class="td-note">Reading: 2595 units</div>
+          </td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>
+            Meter Reading – 1 March 2025
+            <div class="td-note">Reading: 2570 units</div>
+          </td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>
+            Units Consumed
+            <div class="td-note">25 kWh × ₹7 per unit</div>
+          </td>
+          <td>175.00</td>
+        </tr>
+
+        <tr class="section-divider"><td colspan="2">Other Charges</td></tr>
+        <tr>
+          <td>Maintenance &amp; Service Charge</td>
+          <td>160.00</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Totals -->
+  <div class="totals-block">
+    <div class="total-row subtotal">
+      <span>Monthly Total</span>
+      <span>₹ 6,335.00</span>
+    </div>
+    <div class="total-row previous">
+      <span>Previous Due</span>
+      <span>₹ 0.00</span>
+    </div>
+
+    <div class="balance-row">
+      <span class="balance-label">Balance Due</span>
+      <span class="balance-amount"><span class="balance-currency">₹</span>6,335.00</span>
+    </div>
+  </div>
+
+  <!-- Payment -->
+  <div class="payment-block">
+    <div class="payment-col">
+      <div class="payment-col-title">Pay Via</div>
+      <div class="payment-method">Bank Transfer / UPI</div>
+    </div>
+    <div class="payment-col" style="text-align:right;">
+      <div class="payment-col-title">UPI ID &amp; Phone</div>
+      <div class="upi-id">9340903869@ptsbi</div>
+      <div class="payment-method">9340903869</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-main">Bills are generated on the 1st of each month. Due date: 1st – 6th of each month.</div>
+    <div class="footer-hindi">
+      बिल देय तिथि प्रत्येक माह की 1–6 तारीख<br>
+      <span style="font-size:11.5px; color: var(--muted);">Note: बिजली व पानी असुविधा से बचने के लिए समय पर बिल का भुगतान करें। समस्या होने पर मकान मालिक से संपर्क करें।</span>
+    </div>
+  </div>
+
+  <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <div style="height:24px;"></div>
+
+</div>
+
+</body>
+</html>
