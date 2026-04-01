@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Minz's Residence — Landlord Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0e0c;--surface:#1a1916;--card:#222018;--border:#2e2b24;
+  --accent:#c8472a;--gold:#d4a843;--gold-dim:#8a6c28;
+  --text:#f0ebe0;--muted:#7a7060;--green:#4caf7d;--red:#e05a40;--white:#fffdf8;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.page{display:none;min-height:100vh;animation:fadeIn 0.3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* HOME */
+.home-header{background:linear-gradient(135deg,#1a1612,#0f0e0c);border-bottom:1px solid var(--border);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-logo{width:46px;height:46px;border:1.5px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--gold);flex-shrink:0}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;letter-spacing:0.02em}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:300}
+.btn-add{display:flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:none;cursor:pointer;padding:10px 18px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;border-radius:2px;transition:all 0.2s;letter-spacing:0.04em;white-space:nowrap}
+.btn-add:hover{background:#b03820;transform:translateY(-1px)}
+.stats-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surface)}
+.stat{flex:1;padding:16px 24px;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700}
+.stat-value.accent{color:var(--accent)}.stat-value.gold{color:var(--gold)}.stat-value.green{color:var(--green)}
+.tenants-section{padding:28px 40px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.tenant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.tenant-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:22px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.tenant-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--gold));transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
+.tenant-card:hover{border-color:#3e3b34;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.tenant-card:hover::before{transform:scaleX(1)}
+.card-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold-dim));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:#fff;flex-shrink:0}
+.card-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600}
+.card-room{font-size:11.5px;color:var(--muted);margin-top:1px}
+.card-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cs{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:9px 11px}
+.cs-label{font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.cs-value{font-size:13.5px;font-weight:600}
+.cs-value.red{color:var(--red)}.cs-value.green{color:var(--green)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;margin-top:12px}
+.status-badge.unpaid{background:rgba(200,71,42,0.15);color:var(--red);border:1px solid rgba(200,71,42,0.3)}
+.status-badge.paid{background:rgba(76,175,125,0.15);color:var(--green);border:1px solid rgba(76,175,125,0.3)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.empty-state{text-align:center;padding:80px 20px;grid-column:1/-1}
+.empty-icon{font-size:44px;margin-bottom:14px;opacity:0.3}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--muted);margin-bottom:6px}
+.empty-sub{font-size:12.5px;color:#4a4840}
+
+/* TENANT PAGE */
+.sub-header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 40px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.back-btn{background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:17px;transition:all 0.2s;flex-shrink:0}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+.sub-header-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700}
+.sub-header-sub{font-size:11.5px;color:var(--muted)}
+.btn-edit-tenant{background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;padding:7px 14px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;border-radius:2px;transition:all 0.2s;margin-left:auto}
+.btn-edit-tenant:hover{border-color:var(--gold);color:var(--gold)}
+.tenant-page-body{padding:32px 40px}
+.tenant-hero{background:linear-gradient(135deg,var(--card),var(--surface));border:1px solid var(--border);border-radius:3px;padding:24px 28px;display:flex;align-items:center;gap:22px;margin-bottom:36px}
+.hero-avatar{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold-dim));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid var(--gold-dim)}
+.hero-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700}
+.hero-room{font-size:12.5px;color:var(--muted);margin-top:2px}
+.hero-meta{display:flex;gap:22px;margin-top:10px;flex-wrap:wrap}
+.hml{font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.hmv{font-size:13.5px;font-weight:600;margin-top:2px}
+.months-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:12px}
+.months-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:36px}
+.month-card{background:var(--card);border:1px solid var(--border);border-radius:3px;padding:16px 18px;cursor:pointer;transition:all 0.2s}
+.month-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
+.month-card.has-bill:hover{border-color:var(--green)}
+.mc-month{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600}
+.mc-year{font-size:10.5px;color:var(--muted);margin-bottom:8px}
+.mc-status{font-size:11px;font-weight:600}
+.mc-status.has{color:var(--green)}.mc-status.no{color:#3a3830}
+.mc-amount{font-size:12.5px;font-weight:600;color:var(--gold);margin-top:3px}
+
+/* BILL PAGE */
+#page-bill{background:#e8e2d8}
+.bill-actions{background:#1a1916;padding:12px 40px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2e2b24;position:sticky;top:0;z-index:100}
+.bill-back{background:none;border:1px solid #3e3b34;color:#a8a090;cursor:pointer;padding:7px 14px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;border-radius:2px;transition:all 0.2s;display:flex;align-items:center;gap:5px}
+.bill-back:hover{border-color:#d4a843;color:#d4a843}
+.btn-print{margin-left:auto;background:#c8472a;color:#fff;border:none;cursor:pointer;padding:7px 18px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;border-radius:2px;transition:background 0.2s}
+.btn-print:hover{background:#b03820}
+.btn-edit-bill{background:none;border:1px solid #3e3b34;color:#a8a090;cursor:pointer;padding:7px 12px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;border-radius:2px;transition:all 0.2s}
+.btn-edit-bill:hover{border-color:#d4a843;color:#d4a843}
+.bill-wrapper{display:flex;align-items:flex-start;justify-content:center;padding:36px 16px;min-height:calc(100vh - 52px)}
+.receipt{background:#fffdf8;width:100%;max-width:660px;border-radius:2px;box-shadow:0 20px 60px rgba(0,0,0,0.18),0 4px 12px rgba(0,0,0,0.08);overflow:hidden}
+.r-header{background:#1a1a2e;color:#fffdf8;padding:26px 34px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.r-logo{width:46px;height:46px;border:1.5px solid #d4a843;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#d4a843;flex-shrink:0}
+.r-org-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#fffdf8}
+.r-org-addr{font-size:11px;color:#a8a090;margin-top:3px;line-height:1.5;font-weight:300}
+.r-month-badge{text-align:right;flex-shrink:0}
+.r-month-label{font-size:9.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#d4a843;display:block;margin-bottom:3px}
+.r-month-val{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:#fffdf8}
+.r-meta{background:#f5f0e8;border-bottom:1px solid #e8e0d0;padding:11px 34px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.r-meta-item{display:flex;flex-direction:column;gap:1px}
+.rml{font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#7a7060}
+.rmv{font-size:12.5px;font-weight:500;color:#1a1a2e}
+.rmv.unpaid{color:#e05a40;font-weight:700}.rmv.paid{color:#4caf7d;font-weight:700}
+.r-tenant{padding:18px 34px 14px;border-bottom:1px solid #e8e0d0}
+.r-tenant-tag{font-size:9.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#c8472a;margin-bottom:5px}
+.r-tenant-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#1a1a2e}
+.r-tenant-room{font-size:12px;color:#7a7060;margin-top:2px}
+.r-table-wrap{padding:0 34px}
+table.rt{width:100%;border-collapse:collapse}
+table.rt thead tr{background:#1a1a2e;color:#fffdf8}
+table.rt thead th{padding:8px 12px;font-size:9.5px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase}
+table.rt thead th:last-child{text-align:right}
+table.rt tbody tr{border-bottom:1px solid #e8e0d0;transition:background 0.1s}
+table.rt tbody tr:hover{background:#f5f0e8}
+table.rt tbody td{padding:9px 12px;font-size:12.5px;vertical-align:middle;color:#1a1a2e}
+table.rt tbody td:last-child{text-align:right;font-weight:500;font-variant-numeric:tabular-nums}
+.td-note{font-size:10.5px;color:#7a7060;margin-top:1px}
+.section-sep td{padding:5px 12px 2px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c8472a;background:#faf6ee;border-bottom:none}
+.r-totals{padding:14px 34px 0}
+.total-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e8e0d0;font-size:12.5px}
+.total-row.sub{font-weight:500}.total-row.prev{color:#7a7060}
+.r-balance{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0;padding:13px 18px;background:#1a1a2e;border-radius:2px}
+.r-bal-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#d4a843}
+.r-bal-amt{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#fffdf8}
+.r-bal-cur{font-family:'Outfit',sans-serif;font-size:13px;font-weight:400;color:#a8a090;margin-right:3px}
+.r-payment{padding:18px 34px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;border-top:1px solid #e8e0d0;margin-top:14px;flex-wrap:wrap}
+.rp-label{font-size:9.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#7a7060;margin-bottom:4px}
+.rp-val{font-size:12.5px;font-weight:500;color:#1a1a2e}
+.rp-upi{font-size:12.5px;font-weight:600;color:#c8472a}
+.r-footer{background:#f5f0e8;border-top:1px solid #e8e0d0;padding:12px 34px;text-align:center}
+.r-footer-main{font-size:11px;color:#7a7060;margin-bottom:4px}
+.r-footer-hindi{font-size:11.5px;color:#1a1a2e;line-height:1.7}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:4px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;animation:fadeIn 0.25s ease}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:21px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:2px;transition:color 0.2s}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:20px 22px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.form-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;padding:9px 12px;border-radius:2px;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--gold)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;padding:8px 16px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:500;border-radius:2px;transition:all 0.2s}
+.btn-cancel:hover{border-color:var(--muted);color:var(--text)}
+.btn-save{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:8px 20px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:600;border-radius:2px;transition:background 0.2s}
+.btn-save:hover{background:#b03820}
+.btn-danger{background:none;border:1px solid rgba(224,90,64,0.3);color:var(--red);cursor:pointer;padding:8px 14px;font-family:'Outfit',sans-serif;font-size:12.5px;font-weight:500;border-radius:2px;margin-right:auto;transition:all 0.2s}
+.btn-danger:hover{background:rgba(224,90,64,0.1)}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);padding:11px 16px;border-radius:3px;font-size:12.5px;color:var(--text);z-index:9999;animation:slideIn 0.3s ease;display:none}
+.toast.show{display:block}
+@keyframes slideIn{from{transform:translateX(18px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+@media(max-width:580px){
+  .home-header,.sub-header,.tenants-section,.tenant-page-body,.bill-actions{padding-left:14px;padding-right:14px}
+  .stats-bar{flex-wrap:wrap}.stat{min-width:50%;border-bottom:1px solid var(--border)}
+  .form-row{grid-template-columns:1fr}
+  .r-header{flex-wrap:wrap}
+}
+@media print{
+  body,#page-bill{background:white}
+  .bill-actions{display:none}
+  .bill-wrapper{padding:0}
+  .receipt{box-shadow:none;max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="home-header">
+    <div class="brand">
+      <div class="brand-logo">MR</div>
+      <div>
+        <div class="brand-name">Minz's Residence</div>
+        <div class="brand-sub">734, Shivam Vihar Colony · Raigarh, CG 496001</div>
+      </div>
+    </div>
+    <button class="btn-add" onclick="openAddTenant()">+ Add Tenant</button>
+  </div>
+  <div class="stats-bar" id="stats-bar"></div>
+  <div class="tenants-section">
+    <div class="section-title">All Tenants</div>
+    <div class="tenant-grid" id="tenant-grid"></div>
+  </div>
+</div>
+
+<!-- TENANT -->
+<div id="page-tenant" class="page">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showPage('home')">←</button>
+    <div>
+      <div class="sub-header-name" id="tp-name">—</div>
+      <div class="sub-header-sub" id="tp-sub">—</div>
+    </div>
+    <button class="btn-edit-tenant" onclick="openEditTenant()">✏ Edit Tenant</button>
+  </div>
+  <div class="tenant-page-body">
+    <div class="tenant-hero" id="tp-hero"></div>
+    <div class="months-title">Select Billing Month</div>
+    <div class="months-grid" id="months-grid"></div>
+    <div class="months-title">Bills History</div>
+    <div id="bills-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <button class="btn-add" style="margin-top:22px" onclick="openAddBill()">+ Generate New Bill</button>
+  </div>
+</div>
+
+<!-- BILL -->
+<div id="page-bill" class="page">
+  <div class="bill-actions">
+    <button class="bill-back" onclick="showPage('tenant')">← Back</button>
+    <button class="btn-edit-bill" onclick="openEditBill()">✏ Edit Bill</button>
+    <button class="btn-print" onclick="window.print()">🖨 Print / PDF</button>
+  </div>
+  <div class="bill-wrapper">
+    <div class="receipt" id="receipt-content"></div>
+  </div>
+</div>
+
+<!-- MODAL: Tenant -->
+<div class="modal-overlay" id="modal-tenant">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-tenant-title">Add Tenant</div>
+      <button class="modal-close" onclick="closeModal('modal-tenant')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="f-name" placeholder="e.g. Hiresh Toppo"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Room / Block</label><input class="form-input" id="f-room" placeholder="e.g. Block 4"/></div>
+        <div class="form-group"><label class="form-label">Monthly Rent (₹)</label><input class="form-input" type="number" id="f-rent" placeholder="6000"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="f-phone" placeholder="9XXXXXXXXX"/></div>
+        <div class="form-group"><label class="form-label">Move-in Date</label><input class="form-input" type="date" id="f-movein"/></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="btn-del-tenant" onclick="deleteTenant()" style="display:none">Delete Tenant</button>
+      <button class="btn-cancel" onclick="closeModal('modal-tenant')">Cancel</button>
+      <button class="btn-save" onclick="saveTenant()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Bill -->
+<div class="modal-overlay" id="modal-bill">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-bill-title">Generate Bill</div>
+      <button class="modal-close" onclick="closeModal('modal-bill')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Month</label>
+          <select class="form-input" id="b-month">
+            <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+            <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+            <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+            <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Year</label><input class="form-input" type="number" id="b-year" value="2025"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Monthly Rent (₹)</label><input class="form-input" type="number" id="b-rent" placeholder="6000"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Elec. Reading – This Month</label><input class="form-input" type="number" id="b-ecurr" placeholder="2595"/></div>
+        <div class="form-group"><label class="form-label">Elec. Reading – Last Month</label><input class="form-input" type="number" id="b-eprev" placeholder="2570"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Rate per kWh (₹)</label><input class="form-input" type="number" id="b-erate" value="7"/></div>
+        <div class="form-group"><label class="form-label">Maintenance (₹)</label><input class="form-input" type="number" id="b-maint" placeholder="160"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Previous Due (₹)</label><input class="form-input" type="number" id="b-pdue" value="0"/></div>
+        <div class="form-group"><label class="form-label">Payment Status</label>
+          <select class="form-input" id="b-status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Receipt Number (optional)</label><input class="form-input" id="b-recno" placeholder="e.g. 001"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-danger" id="btn-del-bill" onclick="deleteBill()" style="display:none">Delete Bill</button>
+      <button class="btn-cancel" onclick="closeModal('modal-bill')">Cancel</button>
+      <button class="btn-save" onclick="saveBill()">Save Bill</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const KEY='minz_v2';
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){return seed()}}
+function persist(d){localStorage.setItem(KEY,JSON.stringify(d))}
+function seed(){
+  return{tenants:[{id:'t1',name:'Hiresh Toppo',room:'Block 4',rent:6000,phone:'',movein:'2025-01-01',
+    bills:[{id:'b1',month:3,year:2025,rent:6000,ecurr:2595,eprev:2570,erate:7,maint:160,pdue:0,status:'unpaid',recno:''}]}]}
+  }
+}
+
+let DB=load();
+let curTId=null,curBId=null,editTId=null,editBId=null;
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+  if(p==='home')renderHome();
+  if(p==='tenant')renderTenant();
+}
+
+function getTenant(id){return DB.tenants.find(t=>t.id===id)}
+function getBill(t,id){return t.bills.find(b=>b.id===id)}
+function latestBill(t){if(!t.bills.length)return null;return[...t.bills].sort((a,b)=>(b.year*12+b.month)-(a.year*12+a.month))[0]}
+function billTotal(b){const u=(b.ecurr||0)-(b.eprev||0);return(b.rent||0)+u*(b.erate||7)+(b.maint||0)+(b.pdue||0)}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}
+function fmtINR(n){return(n||0).toLocaleString('en-IN',{minimumFractionDigits:2})}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+/* ── HOME ── */
+function renderHome(){
+  const total=DB.tenants.length;
+  const unpaid=DB.tenants.filter(t=>{const b=latestBill(t);return b&&b.status==='unpaid'}).length;
+  const due=DB.tenants.reduce((s,t)=>{const b=latestBill(t);return s+(b&&b.status==='unpaid'?billTotal(b):0)},0);
+  const income=DB.tenants.reduce((s,t)=>s+(t.rent||0),0);
+  document.getElementById('stats-bar').innerHTML=`
+    <div class="stat"><div class="stat-label">Total Tenants</div><div class="stat-value gold">${total}</div></div>
+    <div class="stat"><div class="stat-label">Unpaid Bills</div><div class="stat-value accent">${unpaid}</div></div>
+    <div class="stat"><div class="stat-label">Outstanding (₹)</div><div class="stat-value accent">${due.toLocaleString('en-IN')}</div></div>
+    <div class="stat"><div class="stat-label">Monthly Income</div><div class="stat-value green">₹${income.toLocaleString('en-IN')}</div></div>`;
+  const g=document.getElementById('tenant-grid');
+  if(!DB.tenants.length){g.innerHTML='<div class="empty-state"><div class="empty-icon">🏠</div><div class="empty-title">No tenants yet</div><div class="empty-sub">Click "Add Tenant" to get started</div></div>';return}
+  g.innerHTML=DB.tenants.map(t=>{
+    const lb=latestBill(t);const due2=lb?billTotal(lb):0;const st=lb?lb.status:'none';
+    return`<div class="tenant-card" onclick="openTenant('${t.id}')">
+      <div class="card-top"><div class="avatar">${initials(t.name)}</div><div><div class="card-name">${t.name}</div><div class="card-room">${t.room||'—'}</div></div></div>
+      <div class="card-stats">
+        <div class="cs"><div class="cs-label">Balance Due</div><div class="cs-value ${st==='unpaid'?'red':st==='paid'?'green':''}">${st==='none'?'—':'₹'+due2.toLocaleString('en-IN')}</div></div>
+        <div class="cs"><div class="cs-label">Last Bill</div><div class="cs-value" style="font-size:12px">${lb?MONTHS[lb.month]+' '+lb.year:'—'}</div></div>
+        <div class="cs"><div class="cs-label">Rent</div><div class="cs-value">₹${(t.rent||0).toLocaleString('en-IN')}</div></div>
+        <div class="cs"><div class="cs-label">Bills</div><div class="cs-value">${t.bills.length}</div></div>
+      </div>
+      ${st!=='none'?`<div class="status-badge ${st}"><span class="status-dot"></span>${st==='paid'?'Paid':'Payment Due'}</div>`:''}
+    </div>`}).join('');
+}
+
+function openTenant(id){curTId=id;showPage('tenant')}
+
+/* ── TENANT PAGE ── */
+function renderTenant(){
+  const t=getTenant(curTId);if(!t)return;
+  document.getElementById('tp-name').textContent=t.name;
+  document.getElementById('tp-sub').textContent=`${t.room||'—'} · Rent ₹${(t.rent||0).toLocaleString('en-IN')}/month`;
+  const lb=latestBill(t);
+  document.getElementById('tp-hero').innerHTML=`
+    <div class="hero-avatar">${initials(t.name)}</div>
+    <div><div class="hero-name">${t.name}</div><div class="hero-room">${t.room||'—'} · Minz's Residence</div>
+    <div class="hero-meta">
+      <div><div class="hml">Monthly Rent</div><div class="hmv">₹${(t.rent||0).toLocaleString('en-IN')}</div></div>
+      <div><div class="hml">Total Bills</div><div class="hmv">${t.bills.length}</div></div>
+      <div><div class="hml">Latest</div><div class="hmv">${lb?MONTHS[lb.month]+' '+lb.year:'—'}</div></div>
+      ${t.phone?`<div><div class="hml">Phone</div><div class="hmv">${t.phone}</div></div>`:''}
+    </div></div>`;
+
+  const now=new Date();
+  document.getElementById('months-grid').innerHTML=Array.from({length:12},(_,i)=>{
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const m=d.getMonth(),y=d.getFullYear();
+    const b=t.bills.find(b=>b.month===m&&b.year===y);
+    return`<div class="month-card${b?' has-bill':''}" onclick="${b?`openBill('${b.id}')`:`openBillMonth(${m},${y})`}">
+      <div class="mc-month">${MONTHS[m]}</div><div class="mc-year">${y}</div>
+      ${b?`<div class="mc-status has">● Bill Ready</div><div class="mc-amount">₹${billTotal(b).toLocaleString('en-IN')}</div>`
+        :`<div class="mc-status no">No bill</div><div style="font-size:10.5px;color:#3a3830;margin-top:3px">Tap to create</div>`}
+    </div>`;
+  }).join('');
+
+  const sorted=[...t.bills].sort((a,b)=>(b.year*12+b.month)-(a.year*12+a.month));
+  document.getElementById('bills-list').innerHTML=sorted.length?sorted.map(b=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:3px;padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color 0.2s" onclick="openBill('${b.id}')" onmouseover="this.style.borderColor='#d4a843'" onmouseout="this.style.borderColor='var(--border)'">
+      <div><div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700">${MONTHS[b.month]} ${b.year}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Receipt: ${b.recno||'—'}</div></div>
+      <div style="margin-left:auto;text-align:right"><div style="font-size:15px;font-weight:700;color:var(--gold)">₹${billTotal(b).toLocaleString('en-IN')}</div>
+        <div class="status-badge ${b.status}" style="margin-top:3px"><span class="status-dot"></span>${b.status==='paid'?'Paid':'Unpaid'}</div>
+      </div>
+      <div style="color:var(--muted);font-size:17px">›</div>
+    </div>`)
+  .join(''):'<div style="color:var(--muted);font-size:12.5px;padding:10px 0">No bills generated yet.</div>';
+}
+
+function openBill(bid){
+  const t=getTenant(curTId);const b=getBill(t,bid);if(!b)return;
+  curBId=bid;renderReceipt(t,b);showPage('bill');
+}
+
+/* ── RECEIPT ── */
+function renderReceipt(t,b){
+  const u=(b.ecurr||0)-(b.eprev||0);
+  const elec=u*(b.erate||7);
+  const monthly=(b.rent||0)+elec+(b.maint||0);
+  const total=monthly+(b.pdue||0);
+  const mn=MONTHS[b.month];
+  document.getElementById('receipt-content').innerHTML=`
+    <div style="height:6px;background:linear-gradient(90deg,#c8472a,#d4a843)"></div>
+    <div class="r-header">
+      <div class="r-logo">MR</div>
+      <div style="flex:1"><div class="r-org-name">Minz's Residence</div><div class="r-org-addr">734, Shivam Vihar Colony<br>Raigarh, Chhattisgarh – 496001</div></div>
+      <div class="r-month-badge"><span class="r-month-label">Rent Receipt</span><div class="r-month-val">${mn} ${b.year}</div></div>
+    </div>
+    <div class="r-meta">
+      <div class="r-meta-item"><div class="rml">Receipt No.</div><div class="rmv">${b.recno||'—'}</div></div>
+      <div class="r-meta-item"><div class="rml">Bill Date</div><div class="rmv">01 ${mn} ${b.year}</div></div>
+      <div class="r-meta-item"><div class="rml">Due By</div><div class="rmv">06 ${mn} ${b.year}</div></div>
+      <div class="r-meta-item"><div class="rml">Status</div><div class="rmv ${b.status}">${b.status==='paid'?'Paid':'Unpaid'}</div></div>
+    </div>
+    <div class="r-tenant">
+      <div class="r-tenant-tag">Billed To</div>
+      <div class="r-tenant-name">${t.name}</div>
+      <div class="r-tenant-room">${t.room||'—'}, Minz's Residence</div>
+    </div>
+    <div class="r-table-wrap">
+      <table class="rt">
+        <thead><tr><th style="text-align:left">Description</th><th>Amount (₹)</th></tr></thead>
+        <tbody>
+          <tr class="section-sep"><td colspan="2">Room Rent</td></tr>
+          <tr><td>Monthly Room Rent – ${mn} ${b.year}</td><td>${fmtINR(b.rent)}</td></tr>
+          <tr class="section-sep"><td colspan="2">Electricity</td></tr>
+          <tr><td>Meter Reading – 1 ${mn} ${b.year}<div class="td-note">Reading: ${b.ecurr||0} units</div></td><td>—</td></tr>
+          <tr><td>Meter Reading – Previous Month<div class="td-note">Reading: ${b.eprev||0} units</div></td><td>—</td></tr>
+          <tr><td>Units Consumed<div class="td-note">${u} kWh × ₹${b.erate||7}/unit</div></td><td>${fmtINR(elec)}</td></tr>
+          <tr class="section-sep"><td colspan="2">Other Charges</td></tr>
+          <tr><td>Maintenance &amp; Service Charge</td><td>${fmtINR(b.maint)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="r-totals">
+      <div class="total-row sub"><span>Monthly Total</span><span>₹ ${fmtINR(monthly)}</span></div>
+      <div class="total-row prev"><span>Previous Due</span><span>₹ ${fmtINR(b.pdue)}</span></div>
+      <div class="r-balance">
+        <span class="r-bal-label">Balance Due</span>
+        <span class="r-bal-amt"><span class="r-bal-cur">₹</span>${fmtINR(total)}</span>
+      </div>
+    </div>
+    <div class="r-payment">
+      <div><div class="rp-label">Pay Via</div><div class="rp-val">Bank Transfer / UPI</div></div>
+      <div style="text-align:right"><div class="rp-label">UPI ID &amp; Phone</div><div class="rp-upi">9340903869@ptsbi</div><div class="rp-val">9340903869</div></div>
+    </div>
+    <div class="r-footer">
+      <div class="r-footer-main">Bills generated on 1st of each month · Due: 1st–6th</div>
+      <div class="r-footer-hindi">बिल देय तिथि प्रत्येक माह की 1–6 तारीख<br><span style="font-size:10.5px;color:#7a7060">Note: बिजली व पानी असुविधा से बचने के लिए समय पर बिल का भुगतान करें।</span></div>
+    </div>`;
+}
+
+/* ── TENANT MODAL ── */
+function openAddTenant(){editTId=null;document.getElementById('modal-tenant-title').textContent='Add Tenant';['f-name','f-room','f-rent','f-phone','f-movein'].forEach(i=>document.getElementById(i).value='');document.getElementById('btn-del-tenant').style.display='none';openModal('modal-tenant')}
+function openEditTenant(){const t=getTenant(curTId);if(!t)return;editTId=t.id;document.getElementById('modal-tenant-title').textContent='Edit Tenant';document.getElementById('f-name').value=t.name;document.getElementById('f-room').value=t.room||'';document.getElementById('f-rent').value=t.rent||'';document.getElementById('f-phone').value=t.phone||'';document.getElementById('f-movein').value=t.movein||'';document.getElementById('btn-del-tenant').style.display='block';openModal('modal-tenant')}
+function saveTenant(){const name=document.getElementById('f-name').value.trim();if(!name){alert('Name required');return}const data={name,room:document.getElementById('f-room').value.trim(),rent:parseFloat(document.getElementById('f-rent').value)||0,phone:document.getElementById('f-phone').value.trim(),movein:document.getElementById('f-movein').value};if(editTId){Object.assign(getTenant(editTId),data)}else{DB.tenants.push({id:'t'+Date.now(),...data,bills:[]})}persist(DB);closeModal('modal-tenant');toast(editTId?'Tenant updated ✓':'Tenant added ✓');editTId?renderTenant():renderHome()}
+function deleteTenant(){if(!confirm('Delete this tenant and all their bills?'))return;DB.tenants=DB.tenants.filter(t=>t.id!==editTId);persist(DB);closeModal('modal-tenant');toast('Tenant deleted');showPage('home')}
+
+/* ── BILL MODAL ── */
+function fillBill(b,m,y){const t=getTenant(curTId);editBId=b?b.id:null;document.getElementById('b-month').value=m;document.getElementById('b-year').value=y;document.getElementById('b-rent').value=b?b.rent:(t?t.rent:6000);document.getElementById('b-ecurr').value=b?b.ecurr:'';document.getElementById('b-eprev').value=b?b.eprev:'';document.getElementById('b-erate').value=b?b.erate:7;document.getElementById('b-maint').value=b?b.maint:160;document.getElementById('b-pdue').value=b?b.pdue:0;document.getElementById('b-status').value=b?b.status:'unpaid';document.getElementById('b-recno').value=b?b.recno:''}
+function openAddBill(){const n=new Date();fillBill(null,n.getMonth(),n.getFullYear());document.getElementById('btn-del-bill').style.display='none';document.getElementById('modal-bill-title').textContent='Generate Bill';openModal('modal-bill')}
+function openBillMonth(m,y){fillBill(null,m,y);document.getElementById('btn-del-bill').style.display='none';document.getElementById('modal-bill-title').textContent='Generate Bill';openModal('modal-bill')}
+function openEditBill(){const t=getTenant(curTId);const b=getBill(t,curBId);if(!b)return;editBId=b.id;fillBill(b,b.month,b.year);document.getElementById('btn-del-bill').style.display='block';document.getElementById('modal-bill-title').textContent='Edit Bill';openModal('modal-bill')}
+function saveBill(){
+  const t=getTenant(curTId);if(!t)return;
+  const m=parseInt(document.getElementById('b-month').value),y=parseInt(document.getElementById('b-year').value);
+  const data={month:m,year:y,rent:parseFloat(document.getElementById('b-rent').value)||0,ecurr:parseFloat(document.getElementById('b-ecurr').value)||0,eprev:parseFloat(document.getElementById('b-eprev').value)||0,erate:parseFloat(document.getElementById('b-erate').value)||7,maint:parseFloat(document.getElementById('b-maint').value)||0,pdue:parseFloat(document.getElementById('b-pdue').value)||0,status:document.getElementById('b-status').value,recno:document.getElementById('b-recno').value.trim()};
+  if(editBId){const b=getBill(t,editBId);Object.assign(b,data);curBId=editBId}
+  else{const dup=t.bills.find(b=>b.month===m&&b.year===y);if(dup&&!confirm('Bill exists. Overwrite?'))return;if(dup){Object.assign(dup,data);curBId=dup.id}else{const id='b'+Date.now();t.bills.push({id,...data});curBId=id}}
+  persist(DB);closeModal('modal-bill');toast('Bill saved ✓');renderTenant();
+  const b2=getBill(getTenant(curTId),curBId);if(b2)renderReceipt(getTenant(curTId),b2);
+}
+function deleteBill(){if(!confirm('Delete this bill?'))return;const t=getTenant(curTId);t.bills=t.bills.filter(b=>b.id!==editBId);persist(DB);closeModal('modal-bill');toast('Bill deleted');showPage('tenant')}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+renderHome();
+</script>
+</body>
+</html>
