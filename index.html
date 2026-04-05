@@ -300,6 +300,28 @@ table.rt tbody td:last-child{text-align:right;font-weight:500;font-variant-numer
 .toast.show{display:block}
 @keyframes slideIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
 
+/* share link modal */
+.share-box{background:var(--card2);border:1px solid var(--border);border-radius:3px;padding:12px 14px;display:flex;align-items:center;gap:8px;margin-top:10px}
+.share-url{flex:1;font-size:11px;color:var(--gold);word-break:break-all;line-height:1.5;font-family:monospace}
+.btn-copy{background:var(--accent);color:#fff;border:none;cursor:pointer;padding:6px 12px;font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:600;border-radius:2px;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.btn-copy:hover{background:#ad3820}
+.share-note{font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+/* ══ VIEW-ONLY PAGE ══ */
+#page-view{background:#e2ddd4}
+.view-bar{background:#16140f;padding:11px 36px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #2a2720}
+.view-brand{display:flex;align-items:center;gap:10px}
+.view-logo{width:32px;height:32px;border:1.5px solid #d4a843;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:700;color:#d4a843}
+.view-brand-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:#ede8dc}
+.view-readonly{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#6e6858;background:rgba(110,104,88,.15);border:1px solid rgba(110,104,88,.25);padding:2px 8px;border-radius:20px}
+.view-print{margin-left:auto;background:#c8472a;color:#fff;border:none;cursor:pointer;padding:6px 14px;font-family:'Outfit',sans-serif;font-size:11.5px;font-weight:600;border-radius:2px;transition:background .2s}
+.view-print:hover{background:#ad3820}
+.view-wrap{display:flex;justify-content:center;padding:32px 14px;min-height:calc(100vh - 50px)}
+.view-invalid{text-align:center;padding:80px 20px;color:#6e6858}
+.view-invalid-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.view-invalid-title{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:6px}
+.view-invalid-sub{font-size:12px}
+
 /* avatar colors */
 .av1{background:linear-gradient(135deg,#c8472a,#8a2a18)}
 .av2{background:linear-gradient(135deg,#3a7abf,#1a4a80)}
@@ -368,10 +390,47 @@ table.rt tbody td:last-child{text-align:right;font-weight:500;font-variant-numer
   <div class="bill-bar">
     <button class="bill-back" onclick="showPage('tenant')">← Back</button>
     <button class="btn-edit-bill2" onclick="openEditBill()">✏ Edit</button>
+    <button class="btn-edit-bill2" onclick="openShareModal()" style="color:#d4a843;border-color:rgba(212,168,67,.3)">🔗 Share</button>
     <button class="btn-print" onclick="window.print()">🖨 Print / PDF</button>
   </div>
   <div class="bill-wrap">
     <div class="receipt" id="receipt-content"></div>
+  </div>
+</div>
+
+<!-- ══════════ VIEW-ONLY PAGE ══════════ -->
+<div id="page-view" class="page">
+  <div class="view-bar">
+    <div class="view-brand">
+      <div class="view-logo">MR</div>
+      <div class="view-brand-name">Minz's Residence</div>
+    </div>
+    <span class="view-readonly">View Only</span>
+    <button class="view-print" onclick="window.print()">🖨 Print / PDF</button>
+  </div>
+  <div class="view-wrap" id="view-wrap">
+    <div class="receipt" id="view-receipt"></div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: SHARE ══════════ -->
+<div class="overlay" id="modal-share">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title">Share Bill Link</div>
+      <button class="modal-x" onclick="closeModal('modal-share')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:4px">Send this link to your tenant. It opens a <strong style="color:var(--text)">view-only receipt</strong> — no editing possible. Works on any device, no app needed.</p>
+      <div class="share-box">
+        <div class="share-url" id="share-url-text">—</div>
+        <button class="btn-copy" onclick="copyShareLink()">Copy</button>
+      </div>
+      <div class="share-note" id="share-note">💡 Share via WhatsApp, SMS, or any messaging app. The tenant just taps the link to view their bill.</div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-save" onclick="closeModal('modal-share')">Done</button>
+    </div>
   </div>
 </div>
 
@@ -786,7 +845,111 @@ function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'))});
 
-renderHome();
+// ─────────────────────────────
+// SHARE LINK — encode bill into URL hash
+// ─────────────────────────────
+function encodeBill(t,b){
+  const payload={tn:t.name,tr:t.room||'',m:b.month,y:b.year,rent:b.rent,ec:b.ecurr,ep:b.eprev,er:b.erate,mn:b.maint,pd:b.pdue,st:b.status,rn:b.recno||''};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+}
+function decodeBill(hash){try{return JSON.parse(decodeURIComponent(escape(atob(hash))))}catch(e){return null}}
+function buildShareURL(){
+  const t=getTenant(curTId);const b=getBill(t,curBId);if(!t||!b)return '';
+  return window.location.href.split('#')[0]+'#view/'+encodeBill(t,b);
+}
+function openShareModal(){
+  document.getElementById('share-url-text').textContent=buildShareURL();
+  openModal('modal-share');
+}
+function copyShareLink(){
+  const url=buildShareURL();
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.querySelector('#modal-share .btn-copy');
+    btn.textContent='Copied ✓';btn.style.background='#2a7a4a';
+    setTimeout(()=>{btn.textContent='Copy';btn.style.background=''},2200);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    toast('Link copied ✓');
+  });
+}
+
+// ─────────────────────────────
+// VIEW-ONLY — render receipt from decoded payload
+// ─────────────────────────────
+function renderViewOnly(payload){
+  const t={name:payload.tn,room:payload.tr};
+  const b={month:payload.m,year:payload.y,rent:payload.rent,ecurr:payload.ec,eprev:payload.ep,erate:payload.er,maint:payload.mn,pdue:payload.pd,status:payload.st,recno:payload.rn};
+  const u=Math.max(0,(b.ecurr||0)-(b.eprev||0));
+  const elec=u*(b.erate||7);
+  const monthly=(b.rent||0)+elec+(b.maint||0);
+  const total=monthly+(b.pdue||0);
+  const mn=MONTHS[b.month];
+  document.getElementById('view-receipt').innerHTML=`
+    <div class="r-stripe"></div>
+    <div class="r-head">
+      <div class="r-logo">MR</div>
+      <div class="r-org"><div class="r-org-name">Minz's Residence</div><div class="r-org-addr">734, Shivam Vihar Colony<br>Raigarh, Chhattisgarh – 496001</div></div>
+      <div class="r-badge"><span class="r-badge-lbl">Rent Receipt</span><div class="r-badge-val">${mn} ${b.year}</div></div>
+    </div>
+    <div class="r-meta">
+      <div class="rmi"><div class="rmi-l">Receipt No.</div><div class="rmi-v">${b.recno||'—'}</div></div>
+      <div class="rmi"><div class="rmi-l">Bill Date</div><div class="rmi-v">01 ${mn} ${b.year}</div></div>
+      <div class="rmi"><div class="rmi-l">Due By</div><div class="rmi-v">06 ${mn} ${b.year}</div></div>
+      <div class="rmi"><div class="rmi-l">Status</div><div class="rmi-v ${b.status}">${b.status==='paid'?'Paid':'Unpaid'}</div></div>
+    </div>
+    <div class="r-to">
+      <div class="r-to-tag">Billed To</div>
+      <div class="r-to-name">${t.name}</div>
+      <div class="r-to-room">${t.room||'—'}, Minz's Residence</div>
+    </div>
+    <div class="r-tbl-wrap">
+      <table class="rt">
+        <thead><tr><th style="text-align:left">Description</th><th>Amount (₹)</th></tr></thead>
+        <tbody>
+          <tr class="sep-row"><td colspan="2">Room Rent</td></tr>
+          <tr><td>Monthly Room Rent – ${mn} ${b.year}</td><td>${fmtINR(b.rent)}</td></tr>
+          <tr class="sep-row"><td colspan="2">Electricity</td></tr>
+          <tr><td>Meter Reading – 1 ${mn} ${b.year}<div class="td-note">Reading: ${b.ecurr||0} units</div></td><td>—</td></tr>
+          <tr><td>Meter Reading – Previous Month<div class="td-note">Reading: ${b.eprev||0} units</div></td><td>—</td></tr>
+          <tr><td>Units Consumed<div class="td-note">${u} kWh × ₹${b.erate||7} per unit</div></td><td>${fmtINR(elec)}</td></tr>
+          <tr class="sep-row"><td colspan="2">Other Charges</td></tr>
+          <tr><td>Maintenance &amp; Service Charge</td><td>${fmtINR(b.maint)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="r-totals">
+      <div class="total-row sub"><span>Monthly Total</span><span>₹ ${fmtINR(monthly)}</span></div>
+      <div class="total-row prev"><span>Previous Due</span><span>₹ ${fmtINR(b.pdue)}</span></div>
+      <div class="r-bal"><span class="r-bal-lbl">Balance Due</span><span class="r-bal-amt"><span class="r-bal-cur">₹</span>${fmtINR(total)}</span></div>
+    </div>
+    <div class="r-pay">
+      <div><div class="rp-l">Pay Via</div><div class="rp-v">Bank Transfer / UPI</div></div>
+      <div style="text-align:right"><div class="rp-l">UPI ID &amp; Phone</div><div class="rp-upi">9340903869@ptsbi</div><div class="rp-v">9340903869</div></div>
+    </div>
+    <div class="r-foot">
+      <div class="r-foot-main">Bills generated on the 1st of each month &nbsp;·&nbsp; Due: 1st – 6th</div>
+      <div class="r-foot-hi">बिल देय तिथि प्रत्येक माह की 1–6 तारीख<br><span style="font-size:10px;color:#7a7060">Note: बिजली व पानी असुविधा से बचने के लिए समय पर बिल का भुगतान करें।</span></div>
+    </div>`;
+}
+
+// ─────────────────────────────
+// BOOT — check URL hash, show view-only or home
+// ─────────────────────────────
+(function boot(){
+  const hash=window.location.hash;
+  if(hash.startsWith('#view/')){
+    const payload=decodeBill(hash.slice(6));
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    document.getElementById('page-view').classList.add('active');
+    if(payload){
+      renderViewOnly(payload);
+    } else {
+      document.getElementById('view-wrap').innerHTML='<div class="view-invalid"><div class="view-invalid-icon">🔗</div><div class="view-invalid-title">Invalid or expired link</div><div class="view-invalid-sub">This bill link could not be read. Please ask your landlord to resend it.</div></div>';
+    }
+  } else {
+    renderHome();
+  }
+})();
 </script>
 </body>
 </html>
