@@ -857,12 +857,22 @@ function buildShareURL(){
   const t=getTenant(curTId);const b=getBill(t,curBId);if(!t||!b)return '';
   return window.location.href.split('#')[0]+'#view/'+encodeBill(t,b);
 }
-function openShareModal(){
-  document.getElementById('share-url-text').textContent=buildShareURL();
+async function openShareModal(){
+  const long=buildShareURL();
+  document.getElementById('share-url-text').textContent='Shortening…';
+  document.querySelector('#modal-share .btn-copy').disabled=true;
   openModal('modal-share');
+  try{
+    const res=await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(long)}`);
+    const short=await res.text();
+    document.getElementById('share-url-text').textContent=short.startsWith('http')?short:long;
+  }catch(e){
+    document.getElementById('share-url-text').textContent=long;
+  }
+  document.querySelector('#modal-share .btn-copy').disabled=false;
 }
 function copyShareLink(){
-  const url=buildShareURL();
+  const url=document.getElementById('share-url-text').textContent;
   navigator.clipboard.writeText(url).then(()=>{
     const btn=document.querySelector('#modal-share .btn-copy');
     btn.textContent='Copied ✓';btn.style.background='#2a7a4a';
