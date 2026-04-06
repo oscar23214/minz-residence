@@ -895,7 +895,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelect
 // SHARE LINK — encode bill into URL hash
 // ─────────────────────────────
 function encodeBill(t,b){
-  const payload={tn:t.name,tr:t.room||'',m:b.month,y:b.year,rent:b.rent,ec:b.ecurr,ep:b.eprev,er:b.erate,mn:b.maint,pd:b.pdue,st:b.status,rn:b.recno||''};
+  const payload={tn:t.name,tr:t.room||'',m:b.month,y:b.year,rent:b.rent,ec:b.ecurr,ep:b.eprev,er:b.erate,mn:b.maint,pd:b.pdue,st:b.status,rn:b.recno||'',ex:b.extras||[]};
   const data=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   const name=t.name.split(' ')[0].toLowerCase();
   const month=MONTHS[b.month].toLowerCase();
@@ -945,7 +945,7 @@ function copyShareLink(){
 // ─────────────────────────────
 function renderViewOnly(payload){
   const t={name:payload.tn,room:payload.tr};
-  const b={month:payload.m,year:payload.y,rent:payload.rent,ecurr:payload.ec,eprev:payload.ep,erate:payload.er,maint:payload.mn,pdue:payload.pd,status:payload.st,recno:payload.rn};
+  const b={month:payload.m,year:payload.y,rent:payload.rent,ecurr:payload.ec,eprev:payload.ep,erate:payload.er,maint:payload.mn,pdue:payload.pd,status:payload.st,recno:payload.rn,extras:payload.ex||[]};
   const u=Math.max(0,(b.ecurr||0)-(b.eprev||0));
   const elec=u*(b.erate||7);
   const extrasTotal=(b.extras||[]).reduce((s,e)=>s+(e.amount||0),0);
