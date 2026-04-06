@@ -850,7 +850,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelect
 // ─────────────────────────────
 function encodeBill(t,b){
   const payload={tn:t.name,tr:t.room||'',m:b.month,y:b.year,rent:b.rent,ec:b.ecurr,ep:b.eprev,er:b.erate,mn:b.maint,pd:b.pdue,st:b.status,rn:b.recno||''};
-  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const data=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const name=t.name.split(' ')[0].toLowerCase();
+  const month=MONTHS[b.month].toLowerCase();
+  const year=b.year;
+  return `${name}-${month}-${year}--${data}`;
+}
+function decodeBill(hash){
+  try{
+    // strip the readable prefix if present (everything before --)
+    const raw=hash.includes('--')?hash.split('--')[1]:hash;
+    return JSON.parse(decodeURIComponent(escape(atob(raw))));
+  }catch(e){return null}
 }
 function decodeBill(hash){try{return JSON.parse(decodeURIComponent(escape(atob(hash))))}catch(e){return null}}
 function buildShareURL(){
