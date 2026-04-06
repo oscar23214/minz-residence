@@ -718,7 +718,8 @@ function openBill(bid){
 function renderReceipt(t,b){
   const u=Math.max(0,(b.ecurr||0)-(b.eprev||0));
   const elec=u*(b.erate||7);
-  const monthly=(b.rent||0)+elec+(b.maint||0);
+  const extrasTotal=(b.extras||[]).reduce((s,e)=>s+(e.amount||0),0);
+  const monthly=(b.rent||0)+elec+(b.maint||0)+extrasTotal;
   const total=monthly+(b.pdue||0);
   const mn=MONTHS[b.month];
   document.getElementById('receipt-content').innerHTML=`
@@ -947,7 +948,8 @@ function renderViewOnly(payload){
   const b={month:payload.m,year:payload.y,rent:payload.rent,ecurr:payload.ec,eprev:payload.ep,erate:payload.er,maint:payload.mn,pdue:payload.pd,status:payload.st,recno:payload.rn};
   const u=Math.max(0,(b.ecurr||0)-(b.eprev||0));
   const elec=u*(b.erate||7);
-  const monthly=(b.rent||0)+elec+(b.maint||0);
+  const extrasTotal=(b.extras||[]).reduce((s,e)=>s+(e.amount||0),0);
+  const monthly=(b.rent||0)+elec+(b.maint||0)+extrasTotal;
   const total=monthly+(b.pdue||0);
   const mn=MONTHS[b.month];
   document.getElementById('view-receipt').innerHTML=`
